@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Post</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .post-box {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 450px;
+            height: 450px;
+            margin: auto;
+        }
+
+        .buttons {
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 8px 12px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            margin: 5px;
+        }
+
+        .emoji-picker {
+            display: none;
+            position: absolute;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            width: 200px;
+            margin-top: 5px;
+            left: 70%;
+            top: 160px;
+            
+        }
+
+        .emoji-picker button {
+            padding: 5px;
+            cursor: pointer;
+            font-size: 20px;
+            background: none;
+            border: none;
+        }
+
+        .image-preview {
+            margin-top: 10px;
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .image-preview img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .post-btn {
+            width: 100%;
+            padding: 10px;
+            background: blue;
+            color: white;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .home {
+            margin-top: 20px;
+        }
+
+        .post {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .comment-section {
+            margin-top: 10px;
+        }
+
+        .comment-section input {
+            width: 100%;
+            padding: 5px;
+            margin-top: 5px;
+            border-radius: 5px;
+        }
+
+        textarea {
+            width: 90%;
+            height: 300px;
+            margin-left: 5px;
+            margin-top: -5px;
+            padding: 10px;
+            resize: none;
+            border-radius: 5px;
+        }
+        .image-preview {
+            margin-top: 10px;
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        .preview-item {
+            position: relative;
+            display: inline-block;
+        }
+        .preview-item img, .preview-item video {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .remove-btn {
+            position: absolute;
+            top: -30px;
+            right: -5px;
+            color: black;
+            background: none;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="post-box" id="post-box">
+        <textarea id="post-text" placeholder="Write something..."></textarea>
+        <div class="buttons">
+            <button onclick="document.getElementById('imageUpload').click()">📷 Image</button>
+            <button onclick="document.getElementById('videoUpload').click()">🎥 Video</button>
+            <button onclick="toggleEmojiPicker()">😊 Emoji</button>
+        </div>
+        <input type="file" id="imageUpload" accept="image/*" multiple hidden>
+        <input type="file" id="videoUpload" accept="video/*" hidden>
+        <div class="image-preview"></div>
+        <button class="post-btn" onclick="createPost()">Post</button>
+    </div>
+
+    <div class="home"></div>
+
+    <div class="emoji-picker" id="emoji-picker">
+        <button onclick="addEmoji('😊')">😊</button>
+        <button onclick="addEmoji('📚')">📚</button>
+        <button onclick="addEmoji('🎓')">🎓</button>
+        <button onclick="addEmoji('👩‍🏫')">👩‍🏫</button>
+        <button onclick="addEmoji('👨‍🏫')">👨‍🏫</button>
+        <button onclick="addEmoji('📝')">📝</button>
+        <button onclick="addEmoji('📖')">📖</button>
+        <button onclick="addEmoji('🔬')">🔬</button>
+        <button onclick="addEmoji('💡')">💡</button>
+        <button onclick="addEmoji('📖')">📖</button>
+        <button onclick="addEmoji('🖋️')">🖋️</button>
+        <button onclick="addEmoji('👩‍🎓')">👩‍🎓</button>
+        <button onclick="addEmoji('👨‍🎓')">👨‍🎓</button>
+    </div>
+    <script>
+        let selectedImages = [];
+        let selectedVideo = null;
+
+        document.getElementById('imageUpload').addEventListener('change', function(event) {
+            for (let file of event.target.files) {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        selectedImages.push(e.target.result);
+                        displayPreview();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+
+        document.getElementById('videoUpload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('video/')) {
+                selectedVideo = URL.createObjectURL(file);
+                displayPreview();
+            }
+        });
+
+        function displayPreview() {
+            const previewBox = document.querySelector('.image-preview');
+            previewBox.innerHTML = "";
+            selectedImages.forEach((img, index) => {
+                const imgContainer = document.createElement('div');
+                imgContainer.classList.add('preview-item');
+                const imgElement = document.createElement('img');
+                imgElement.src = img;
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = '✖';
+                removeBtn.style.top = '-24px';
+                removeBtn.style.left = '45px';
+                removeBtn.classList.add('remove-btn');
+                removeBtn.onclick = () => removeImage(index);
+                imgContainer.appendChild(imgElement);
+                imgContainer.appendChild(removeBtn);
+                previewBox.appendChild(imgContainer);
+            });
+            if (selectedVideo) {
+                const videoContainer = document.createElement('div');
+                videoContainer.classList.add('preview-item');
+                const videoElement = document.createElement('video');
+                videoElement.src = selectedVideo;
+                videoElement.controls = true;
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = '✖';
+                removeBtn.style.top = '-24px';
+                removeBtn.style.left = '45px';
+                removeBtn.classList.add('remove-btn');
+                removeBtn.onclick = removeVideo;
+                videoContainer.appendChild(videoElement);
+                videoContainer.appendChild(removeBtn);
+                previewBox.appendChild(videoContainer);
+            }
+        }
+
+        function removeImage(index) {
+            selectedImages.splice(index, 1);
+            displayPreview();
+        }
+
+        function removeVideo() {
+            selectedVideo = null;
+            displayPreview();
+        }
+        function toggleEmojiPicker() {
+            const emojiPicker = document.getElementById('emoji-picker');
+            emojiPicker.style.display = emojiPicker.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function addEmoji(emoji) {
+            document.getElementById('post-text').value += emoji;
+            toggleEmojiPicker();  // Hide emoji picker after selecting emoji
+        }
+
+        function createPost() {
+            const postContent = document.getElementById('post-text').value;
+            if (!postContent && selectedImages.length === 0 && !selectedVideo) {
+                alert("Please enter text, image, or video!");
+                return;
+            }
+
+            // Hide the post creation box
+            document.getElementById('post-box').style.display = 'none';
+
+            const home = document.querySelector('.home');
+            const postDiv = document.createElement('div');
+            postDiv.classList.add('post');
+            postDiv.innerHTML = `
+                <div class="profile">
+                    <img src="https://via.placeholder.com/40" alt="Profile">
+                    <h4>User Name</h4>
+                </div>
+                <p>${postContent}</p>
+                ${selectedImages.map(img => `<img src="${img}" style="width:100%; border-radius: 5px;">`).join('')}
+                ${selectedVideo ? `<video src="${selectedVideo}" controls style="width:100%; margin-top:10px;"></video>` : ''}
+                <div class="actions">
+                    <button onclick="likePost(this)">👍 Like</button>
+                    <button onclick="commentPost(this)">💬 Comment</button>
+                    <button>🔄 Share</button>
+                    <button onclick="deletePost(this)" class="delete-btn">🗑 Delete</button>
+                </div>
+                <div class="comment-section">
+                    <input type="text" placeholder="Write a comment..." onkeypress="handleComment(event, this)">
+                    <div class="comments"></div>
+                </div>
+            `;
+            home.prepend(postDiv);
+            selectedImages = [];
+            selectedVideo = null;
+            document.querySelector('.image-preview').innerHTML = "";
+            document.getElementById('post-text').value = "";
+        }
+
+        function handleComment(event, input) {
+            if (event.key === 'Enter' && input.value.trim()) {
+                let commentBox = input.nextElementSibling;
+                let comment = document.createElement('p');
+                comment.textContent = input.value;
+                commentBox.appendChild(comment);
+                input.value = "";
+            }
+        }
+        function deletePost(btn) {
+            btn.closest('.post').remove();
+        }
+    </script>
+</body>
+</html>
